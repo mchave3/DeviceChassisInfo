@@ -35,7 +35,7 @@ This option automatically configures your Microsoft Tenant comprehensively. The 
 
 ## Step 1: Download the Script
 
-To get started, download the [`Setup_Intune_DeviceChassisInfo.ps1`](https://github.com/mchave3/PowerShell-Scripts/blob/main/Intune/Manage-ChassisType/Setup_Intune_DeviceChassisInfo.ps1) script from the [GitHub repository](https://github.com/mchave3/PowerShell-Scripts/tree/main/Intune/Manage-ChassisType).
+To get started, download the [`Setup_Intune_DeviceChassisInfo.ps1`](https://github.com/mchave3/DeviceChassisInfo/blob/main/Setup_Intune_DeviceChassisInfo.ps1) script from the [GitHub repository](https://github.com/mchave3/DeviceChassisInfo).
 
 
 ## Step 2: Configure Script Parameters
@@ -97,10 +97,10 @@ This option provides a more hands-on approach, allowing you to manually set up y
 
 ## Step 3: Download Detection & Remediation Scripts
 
-1) To get started, download the detection & remediation script from the [GitHub repository](https://github.com/mchave3/PowerShell-Scripts/tree/main/Intune/Manage-ChassisType/Remediation).
+1) To get started, download the detection & remediation script from the [GitHub repository](https://github.com/mchave3/DeviceChassisInfo/tree/main/Remediation).
 
-    - Detection -> [`DeviceChassisInfo_Detection.ps1`](https://github.com/mchave3/PowerShell-Scripts/blob/main/Intune/Manage-ChassisType/Remediation/DeviceChassisInfo_Detection.ps1) 
-    - Remediation -> [`DeviceChassisInfo_Remediation.ps1`](https://github.com/mchave3/PowerShell-Scripts/blob/main/Intune/Manage-ChassisType/Remediation/DeviceChassisInfo_Remediation.ps1) 
+    - Detection -> [`DeviceChassisInfo_Detection.ps1`](https://github.com/mchave3/DeviceChassisInfo/blob/main/Remediation/DeviceChassisInfo_Detection.ps1) 
+    - Remediation -> [`DeviceChassisInfo_Remediation.ps1`](https://github.com/mchave3/DeviceChassisInfo/blob/main/Remediation/DeviceChassisInfo_Remediation.ps1) 
 
 2) Open `DeviceChassisInfo_Detection.ps1` & `DeviceChassisInfo_Remediation.ps1` in a text editor and modify the following parameters:
 

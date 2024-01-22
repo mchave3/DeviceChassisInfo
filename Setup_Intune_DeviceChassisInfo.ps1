@@ -275,7 +275,7 @@ PROCESS{
     # Authenticate to Microsoft Graph
     try {
         LogWrite "Authenticating to Microsoft Graph..."
-        Connect-MgGraph -Scopes $scopes -NoWelcome
+        Connect-MgGraph -Scopes $scopes -NoWelcome | Out-Null
         if (Get-MgContext) {
             LogWrite "Authenticated to Microsoft Graph."
         }
@@ -371,7 +371,7 @@ PROCESS{
     }
 
     # Download the proactive remediation scripts from GitHub and store them in a temporary folder
-    $tempFolder = "$env:TEMP\Intune-ChassisType"
+    $tempFolder = "$env:TEMP\DeviceChassisInfo"
     if (!(Test-Path $tempFolder)) {
         New-Item -Path $tempFolder -ItemType Directory -Force | Out-Null
     }
@@ -384,12 +384,12 @@ PROCESS{
     $remediationScripts = @(
         @{
             Name='DeviceChassisInfo_Detection.ps1';
-            Uri='https://raw.githubusercontent.com/mchave3/PowerShell-Scripts/main/Intune/Manage-ChassisType/Remediation/DeviceChassisInfo_Detection.ps1';
+            Uri='https://raw.githubusercontent.com/mchave3/DeviceChassisInfo/tree/main/Remediation/DeviceChassisInfo_Detection.ps1';
             Path="$tempFolder\DeviceChassisInfo_Detection.ps1"
         }
         @{
             Name='DeviceChassisInfo_Remediation.ps1';
-            Uri='https://raw.githubusercontent.com/mchave3/PowerShell-Scripts/main/Intune/Manage-ChassisType/Remediation/DeviceChassisInfo_Remediation.ps1';
+            Uri='https://raw.githubusercontent.com/mchave3/DeviceChassisInfo/tree/main/Remediation/DeviceChassisInfo_Remediation.ps1';
             Path="$tempFolder\DeviceChassisInfo_Remediation.ps1"
         }
     )
