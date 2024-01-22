@@ -42,9 +42,6 @@ BEGIN{
     $global:logdir = "C:\ProgramData\Microsoft\IntuneManagementExtension\Logs"
     $global:logfile = "$logdir\DeviceChassisInfo_Remediation.log"
 
-    # Transcription log file details
-    $global:logTranscript = "$logdir\DeviceChassisInfo_Transcript.log"
-
     # ============================================================
     # DO NOT MODIFY ANYTHING BELOW THIS LINE
     # ============================================================
@@ -62,50 +59,6 @@ PROCESS{
         $logstring = (Get-Date).ToString() + " - $logstring"
         Add-Content $Logfile -Value $logstring
         Write-Host $logstring
-    }
-
-    # Function for starting and stopping the transcript
-    Function ExecuteWithTranscript
-    {
-        Param(
-            [Parameter(Mandatory=$true)]
-            [scriptblock]$CommandToExecute,
-            [Parameter(Mandatory=$false)]
-            [string]$TranscriptPath = $global:logTranscript
-        )
-        # Get powershell version
-        $psversion = $PSVersionTable.PSVersion
-
-        # Check if powershell version is greater than 6.2
-        if ($psversion -ge [version]"6.2") {
-            # Start the transcript
-            LogWrite ""
-            Start-Transcript -Path $TranscriptPath -UseMinimalHeader -Force
-
-            # Execute the command
-            $result = Invoke-Command $CommandToExecute
-
-            # Stop the transcript
-            Stop-Transcript
-            Get-Content -Path $TranscriptPath | ForEach-Object {LogWrite $_}
-            LogWrite ""
-        }
-        else {
-            # Start the transcript
-            LogWrite ""
-            Start-Transcript -Path $TranscriptPath -Force
-
-            # Execute the command
-            $result = Invoke-Command $CommandToExecute
-
-            # Stop the transcript
-            Stop-Transcript
-            Get-Content -Path $TranscriptPath | ForEach-Object {LogWrite $_}
-            LogWrite ""
-        }
-
-        # Return the result of the command
-        return $result
     }
 
     # Function to update the device category
@@ -218,7 +171,7 @@ PROCESS{
         {
             try {
                 # Get all versions of the provider installed on the machine
-                $installedProviderVersions = ExecuteWithTranscript -CommandToExecute {Get-PackageProvider -ListAvailable -Name $module.Name -Verbose}
+                $installedProviderVersions = Get-PackageProvider -ListAvailable -Name $module.Name
             }
             catch { 
                 # Do nothing for not showing up the error message when the provider is not installed
@@ -230,7 +183,7 @@ PROCESS{
                 # If the provider is installed
                 if ($installedProviderVersions){
                     # Find the latest version available online
-                    $onlineProviderVersion = [version](ExecuteWithTranscript -CommandToExecute {Find-PackageProvider -Name $module.Name -Verbose}).Version
+                    $onlineProviderVersion = [version](Find-PackageProvider -Name $module.Name).Version
 
                     # Find the latest version installed on the machine
                     $latestInstalledProviderVersion = [version]($installedProviderVersions | Sort-Object Version -Descending | Select-Object -First 1).Version.ToString()
@@ -238,7 +191,7 @@ PROCESS{
                     # If the online version is newer than the latest installed version
                     if ($onlineProviderVersion -gt $latestInstalledProviderVersion){
                         LogWrite "A newer version of $($module.Name) is available online. Updating..."
-                        ExecuteWithTranscript -CommandToExecute {Install-PackageProvider $module.Name -Force -Scope AllUsers -MinimumVersion $module.Version -Verbose}
+                        Install-PackageProvider $module.Name -Force -Scope AllUsers -MinimumVersion $module.Version
                         LogWrite "Package provider $($module.Name) updated to version $($onlineProviderVersion)."
                     }
                     else{
@@ -248,17 +201,17 @@ PROCESS{
                 # If the provider is not installed, install it
                 else{
                     LogWrite "Package provider $($module.Name) is not installed. Installing..."
-                    ExecuteWithTranscript -CommandToExecute {Install-PackageProvider $module.Name -Force -Scope AllUsers -MinimumVersion $module.Version -Verbose}
+                    Install-PackageProvider $module.Name -Force -Scope AllUsers -MinimumVersion $module.Version
                     LogWrite "Package provider $($module.Name) installed."
                 }
             } else {
                 # Get all versions of the module installed on the machine
-                $installedVersions = ExecuteWithTranscript -CommandToExecute {Get-Module -ListAvailable -Name $module.Name -Verbose}
+                $installedVersions = Get-Module -ListAvailable -Name $module.Name
 
                 # If the module is installed
                 if ($installedVersions){
                     # Find the latest version available online
-                    $onlineVersion = [version](ExecuteWithTranscript -CommandToExecute {Find-Module -Name $module.Name -Verbose}).Version
+                    $onlineVersion = [version](Find-Module -Name $module.Name).Version
 
                     # Find the latest version installed on the machine
                     $latestInstalledVersion = [version]($installedVersions | Sort-Object Version -Descending | Select-Object -First 1).Version.ToString()
@@ -266,7 +219,7 @@ PROCESS{
                     # If the online version is newer than the latest installed version
                     if ($onlineVersion -gt $latestInstalledVersion){
                         LogWrite "A newer version of $($module.Name) is available online. Updating..."
-                        ExecuteWithTranscript -CommandToExecute {Update-Module $module.Name -Force -Scope AllUsers -Verbose}
+                        Update-Module $module.Name -Force -Scope AllUsers
                         LogWrite "Module $($module.Name) updated to version $($onlineVersion)."
                     }
                     else{
@@ -276,7 +229,7 @@ PROCESS{
                 # If the module is not installed, install it
                 else{
                     LogWrite "Module $($module.Name) is not installed. Installing..."
-                    ExecuteWithTranscript -CommandToExecute {Install-Module $module.Name -Force -Scope AllUsers -Verbose}
+                    Install-Module $module.Name -Force -Scope AllUsers
                     LogWrite "Module $($module.Name) installed."
                 }
             }
@@ -294,7 +247,7 @@ PROCESS{
         if ($module.IsPackageProvider -eq $false) {
             try{
                 LogWrite "Importing module $($module.Name)..."
-                ExecuteWithTranscript -CommandToExecute {Import-Module $module.Name -ErrorAction Stop -Verbose}
+                Import-Module $module.Name -ErrorAction Stop
                 LogWrite "Module $($module.Name) imported."
             }
             catch{
