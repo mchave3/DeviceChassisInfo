@@ -133,6 +133,28 @@ PROCESS{
     # Function for exiting the script
     Function ExitScript
     {
+        # Disconnect from Microsoft Graph
+        if (Get-MgContext -ErrorAction SilentlyContinue) {
+            try {
+                Disconnect-MgGraph | Out-Null
+                LogWrite "Disconnected from Microsoft Graph."
+            }
+            catch {
+                LogWrite "Error disconnecting from Microsoft Graph. Error: $($_.Exception.Message)"
+            }
+        }
+
+        # Clean up the temporary folder
+        if(Test-Path $global:tempFolder -ErrorAction SilentlyContinue){
+            try {
+                Remove-Item -Path $global:tempFolder -Recurse -Force
+                LogWrite "Temporary folder cleaned up."
+            }
+            catch {
+                LogWrite "Error cleaning up temporary folder. Error: $($_.Exception.Message)"
+            }
+        }
+
         LogWrite "Script stopped with errors."
         LogWrite "Log file: $global:logfile"
         Write-Host "Press enter to exit..."
@@ -371,13 +393,13 @@ PROCESS{
     }
 
     # Download the proactive remediation scripts from GitHub and store them in a temporary folder
-    $tempFolder = "$env:TEMP\DeviceChassisInfo"
-    if (!(Test-Path $tempFolder)) {
-        New-Item -Path $tempFolder -ItemType Directory -Force | Out-Null
+    $global:tempFolder = "$env:TEMP\DeviceChassisInfo"
+    if (!(Test-Path $global:tempFolder)) {
+        New-Item -Path $global:tempFolder -ItemType Directory -Force | Out-Null
     }
     else {
-        Remove-Item -Path $tempFolder -Recurse -Force | Out-Null
-        New-Item -Path $tempFolder -ItemType Directory -Force | Out-Null
+        Remove-Item -Path $global:tempFolder -Recurse -Force | Out-Null
+        New-Item -Path $global:tempFolder -ItemType Directory -Force | Out-Null
     }
 
     # Table with the remediation scripts
@@ -385,12 +407,12 @@ PROCESS{
         @{
             Name='DeviceChassisInfo_Detection.ps1';
             Uri='https://raw.githubusercontent.com/mchave3/DeviceChassisInfo/tree/main/Remediation/DeviceChassisInfo_Detection.ps1';
-            Path="$tempFolder\DeviceChassisInfo_Detection.ps1"
+            Path="$global:tempFolder\DeviceChassisInfo_Detection.ps1"
         }
         @{
             Name='DeviceChassisInfo_Remediation.ps1';
             Uri='https://raw.githubusercontent.com/mchave3/DeviceChassisInfo/tree/main/Remediation/DeviceChassisInfo_Remediation.ps1';
-            Path="$tempFolder\DeviceChassisInfo_Remediation.ps1"
+            Path="$global:tempFolder\DeviceChassisInfo_Remediation.ps1"
         }
     )
 
@@ -499,7 +521,7 @@ PROCESS{
 
 END{
     # Disconnect from Microsoft Graph
-    if (Get-MgContext) {
+    if (Get-MgContext -ErrorAction SilentlyContinue) {
         try {
             Disconnect-MgGraph | Out-Null
             LogWrite "Disconnected from Microsoft Graph."
@@ -511,13 +533,15 @@ END{
     }
 
     # Clean up the temporary folder
-    try {
-        Remove-Item -Path $tempFolder -Recurse -Force
-        LogWrite "Temporary folder cleaned up."
-    }
-    catch {
-        LogWrite "Error cleaning up temporary folder. Error: $($_.Exception.Message)"
-        ExitScript
+    if (Test-Path $global:tempFolder -ErrorAction SilentlyContinue){
+        try {
+            Remove-Item -Path $global:tempFolder -Recurse -Force
+            LogWrite "Temporary folder cleaned up."
+        }
+        catch {
+            LogWrite "Error cleaning up temporary folder. Error: $($_.Exception.Message)"
+            ExitScript
+        }
     }
 
     LogWrite "Script completed."
