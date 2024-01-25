@@ -1,4 +1,4 @@
-# How to Use Microsoft Intune Chassis Type Script
+# How to Use
 
 This guide provides detailed instructions on how to utilize the Microsoft Intune Chassis Type script. Whether you prefer an automated setup or a more hands-on, manual configuration, this guide covers both options.
 
@@ -7,12 +7,12 @@ This guide provides detailed instructions on how to utilize the Microsoft Intune
 Before you begin, ensure that the following prerequisites are in place:
 
 - PowerShell 5 or higher installed on your machine
-- Microsoft Azure account with administrative permissions
+- Microsoft Entra account with administrative permissions
 - App registration on Microsoft Entra
 
 ### Create an App Registration
 
-1) Navigate to [Microsoft Entra](https://portal.azure.com/) -> **App registrations**
+1) Navigate to [Microsoft Entra Portal](https://portal.azure.com/) -> **App registrations**
 2) Click on "**New registration**" and enter the following information:
     - **Name:** _The name of this application_
     - **Supported account types:** _Accounts in this organizational directory only_
